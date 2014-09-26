@@ -1,32 +1,52 @@
 /* Display entire image */
 @media only screen 
 and (min-width : 1280px) {
-	background-color: blue;
+	.homer {
+		width: 600px;
+		height: 600px;
+		background: url('./images/homer.jpg') 0 0px;
+	}
 }
 
 /* Display upper left picture */
 @media only screen 
 and (min-width : 1024px) 
 and (max-width : 1280px) {
-	background-color: pink;
+	.homer {
+		width: 300px;
+		height: 300px;
+		background: url('./images/homer.jpg') 0 0px;
+	}
 }
 
 /* Display upper right picture */
 @media only screen 
 and (min-width : 768px) 
 and (max-width : 1024px) {
-	background-color: green;
+	.homer {
+		width: 300px;
+		height: 300px;
+		background: url('./images/homer.jpg') 300px 0px;
+	}
 }
 
 /* Display bottom left picture */
 @media only screen 
 and (min-width : 480px) 
 and (max-width : 768px) {
-	background-color: orange;
+	.homer {
+		width: 300px;
+		height: 300px;
+		background: url('./images/homer.jpg') 0 -300px;
+	}
 }
 
 /* Display bottom right picture */
 @media only screen 
 and (max-width : 480px) {
-	background-color: red;
+	.homer {
+		width: 300px;
+		height: 300px;
+		background: url('./images/homer.jpg') 300px -300px;
+	}
 }
