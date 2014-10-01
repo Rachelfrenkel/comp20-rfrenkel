@@ -1,6 +1,6 @@
 /* Display entire image */
 @media only screen 
-and (min-width : 1280px) {
+and (min-width : 1281px) {
 	.homer {
 		width: 600px;
 		height: 600px;
@@ -10,7 +10,7 @@ and (min-width : 1280px) {
 
 /* Display upper left picture */
 @media only screen 
-and (min-width : 1024px) 
+and (min-width : 1025px) 
 and (max-width : 1280px) {
 	.homer {
 		width: 300px;
@@ -21,7 +21,7 @@ and (max-width : 1280px) {
 
 /* Display upper right picture */
 @media only screen 
-and (min-width : 768px) 
+and (min-width : 769px) 
 and (max-width : 1024px) {
 	.homer {
 		width: 300px;
@@ -32,7 +32,7 @@ and (max-width : 1024px) {
 
 /* Display bottom left picture */
 @media only screen 
-and (min-width : 480px) 
+and (min-width : 481px) 
 and (max-width : 768px) {
 	.homer {
 		width: 300px;
