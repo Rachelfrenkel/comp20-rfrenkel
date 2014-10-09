@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Daydream Believer</title>
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+<h1 id="title">Daydream Believer</h1>
+
+<video src="http://www.cs.tufts.edu/comp/20/daydream_believer.webm" id="music_video" controls></video>
+<div id="lyrics"></div>
+
+<script>
+	(function(){
+		var v = document.getElementsByTagName("video")[0];
+		var text = document.getElementsById("lyrics");
+		v.addEventListener("timeupdate", function(event){
+			text.innerHTML = v.currentTime;
+		}, false);
+	})
+</script>
+</body>
+</html>	
