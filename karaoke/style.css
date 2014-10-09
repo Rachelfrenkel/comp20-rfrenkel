@@ -1,11 +1,31 @@
-video {
+h1, p {
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
 
+body {
+	background-color: #D1D1FF;
+}
+
+h1#title {
+	text-align: center;
+	color: #6666FF;
+}
+
+video {
+	width: 40%;
+	height: auto;
+	display: block;
+	margin: 0 auto;
 }
 
 #lyrics p {
-
+	text-align: center;
+	color: #660099;
 }
 
 #lyrics img {
-	
+	margin: 0 auto;
+	display: block;
+	width: 20%;
+	height: auto;
 }
