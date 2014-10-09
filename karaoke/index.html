@@ -11,16 +11,33 @@
 <h1 id="title">Daydream Believer</h1>
 
 <video src="http://www.cs.tufts.edu/comp/20/daydream_believer.webm" id="music_video" controls></video>
-<div id="lyrics"></div>
+<div id="lyrics"><p>Here are the lyrics: </p></div>
 
 <script>
-	(function(){
+
+	function addLyrics() {
 		var v = document.getElementsByTagName("video")[0];
-		var text = document.getElementsById("lyrics");
-		v.addEventListener("timeupdate", function(event){
-			text.innerHTML = v.currentTime;
+		var caption = document.getElementById("lyrics");
+		v.addEventListener("timeupdate", function(){
+			if (this.currentTime >= 5 && this.currentTime < 38)
+				caption.innerHTML = "<p>Oh, I could hide 'neath the wings<br>Of the bluebird as she sings.<br>The six o'clock alarm would never ring.<br>But it rings and I rise,<br>Wipe the sleep out of my eyes.<br>My shavin' razor's cold and it stings.</p>";
+			if (this.currentTime > 38 && this.currentTime < 55)
+				caption.innerHTML = "<p>Cheer up, Sleepy Jean.<br>Oh, what can it mean.<br>To a daydream believer<br>And a homecoming queen.</p>";
+			else if (this.currentTime > 55 && this.currentTime < 85)
+				caption.innerHTML = "<p>You once thought of me<br>As a white knight on a steed.<br>Now you know how happy I can be.<br>Oh, and our good times start and end<br>Without dollar one to spend.<br>But how much, baby, do we really need.</p>";
+			else if (this.currentTime > 85 && this.currentTime < 120)
+				caption.innerHTML = "<p>Cheer up, Sleepy Jean.<br>Oh, what can it mean.<br>To a daydream believer<br>And a homecoming queen.<br>Cheer up, Sleepy Jean.<br>Oh, what can it mean.<br>To a daydream believer<br>And a homecoming queen.</p>";
+			else if (this.currentTime > 120 && this.currentTime < 109)
+				caption.innerHTML = "<p>Instrumental interlude</p>";
+			else if (this.currentTime > 127 && this.currentTime < 165)
+				caption.innerHTML = "<p>Cheer up, Sleepy Jean.<br>Oh, what can it mean.<br>To a daydream believer<br>And a homecoming queen.<br>[Repeat and fade]</p>";
+			else if (this.currentTime > 165)
+				caption.innerHTML = "<p>Thanks for watching!</p>";
 		}, false);
-	})
+	}
+
+	addLyrics();
+
 </script>
 </body>
 </html>	
