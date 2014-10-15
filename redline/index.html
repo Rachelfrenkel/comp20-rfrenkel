@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<style type="text/css">
-			html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
-		</style>
+		<link rel="stylesheet" type="text/css" href="style.css">
 		<script type="text/javascript"
 			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACyKO5dH-2eU_QZj5CTPv57CqvstqBXmE">
 		</script>
@@ -43,13 +41,14 @@
 
 			function initialize(posArr) {
 				var mapOptions = {
-					center: { lat: 42, lng: -71},
-					zoom: 8
+					center: { lat: 42.3, lng: -71.1},
+					zoom: 11
 				};
 				var map = new google.maps.Map(document.getElementById('map-canvas'),
 						mapOptions);
 
 				for (var i = 0; i < posArr.length; i++) {
+					console.log("lat: " + posArr[i]['lat'] + "long: " + posArr[i]['lon']);
 					var marker = new google.maps.Marker({
 						position: new google.maps.LatLng(posArr[i]['lat'], posArr[i]['lon']),
 						map: map
