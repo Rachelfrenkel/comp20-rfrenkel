@@ -8,30 +8,21 @@
 		<script type="text/javascript">
 			var xhr = new XMLHttpRequest();
 			xhr.open("GET", "http://developer.mbta.com/lib/rthr/red.json", true);
-			xhr.onreadystatechange = getPositions;
+			xhr.onreadystatechange = initializeMap;
 			xhr.send();
 
-			function getPositions() {
+			function initializeMap() {
 				if (xhr.readyState === 4) {
 					if (xhr.status === 200) {
-						var posArr = [];
 
-						var response = JSON.parse(xhr.responseText);
-						var tripsArr = response["TripList"]["Trips"];
-
-						var trainCounter = 0;
-						for (var i = 0; i < tripsArr.length; i++) {
-							var pos = tripsArr[i]["Position"];
-							if (pos) {
-
-								var lat = pos["Lat"];
-								var lon = pos["Long"];
-
-								posArr[trainCounter++] = {'lat':lat, 'lon':lon};
-							}
+						var mapOptions = {
+							center: { lat: 42.3, lng: -71.1},
+							zoom: 11
 						};
+						var map = new google.maps.Map(document.getElementById('map-canvas'),
+								mapOptions);
 
-						initialize(posArr);
+						addMarkers(map);
 
 					} else {
 							console.error("GOT ERROR " + xhr.statusText);
@@ -39,13 +30,9 @@
 				}
 			};
 
-			function initialize(posArr) {
-				var mapOptions = {
-					center: { lat: 42.3, lng: -71.1},
-					zoom: 11
-				};
-				var map = new google.maps.Map(document.getElementById('map-canvas'),
-						mapOptions);
+			function addMarkers(map) {
+
+				var posArr = getPositions();
 
 				for (var i = 0; i < posArr.length; i++) {
 					console.log("lat: " + posArr[i]['lat'] + "long: " + posArr[i]['lon']);
@@ -55,6 +42,27 @@
 					});
 				}
 
+			}
+
+			function getPositions() {
+
+				var posArr = [];
+
+				var response = JSON.parse(xhr.responseText);
+				var tripsArr = response["TripList"]["Trips"];
+
+				var trainCounter = 0;
+				for (var i = 0; i < tripsArr.length; i++) {
+					var pos = tripsArr[i]["Position"];
+					if (pos) {
+
+						var lat = pos["Lat"];
+						var lon = pos["Long"];
+
+						posArr[trainCounter++] = {'lat':lat, 'lon':lon};
+					}
+				};
+				return posArr;
 			}
 
 		</script>
