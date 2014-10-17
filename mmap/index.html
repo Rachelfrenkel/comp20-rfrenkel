@@ -7,9 +7,11 @@
 		</script>
 		<script type="text/javascript">
 			var xhr = new XMLHttpRequest();
-			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			xhr.open("POST", "http://chickenofthesea.herokuapp.com/sendLocation", true);
 			xhr.onload = initializeMap;
+
+			xhr.open("POST", "http://chickenofthesea.herokuapp.com/sendLocation", true);
+			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			
 			
 			xhr.send("login=MichaelCorner&lat=42.3&lng=-71.1");
 			console.log(xhr.responseText);
@@ -17,6 +19,7 @@
 			
 
 			function initializeMap() {
+				console.log("IN INIT MAP");
 				if (xhr.readyState === 4) {
 					if (xhr.status === 200) {
 
