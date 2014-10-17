@@ -35,7 +35,7 @@
 				var posArr = getPositions();
 
 				for (var i = 0; i < posArr.length; i++) {
-					console.log("lat: " + posArr[i]['lat'] + "long: " + posArr[i]['lon']);
+
 					var marker = new google.maps.Marker({
 						position: new google.maps.LatLng(posArr[i]['lat'], posArr[i]['lon']),
 						map: map
@@ -49,6 +49,7 @@
 				var posArr = [];
 
 				var response = JSON.parse(xhr.responseText);
+
 				var tripsArr = response["TripList"]["Trips"];
 
 				var trainCounter = 0;
