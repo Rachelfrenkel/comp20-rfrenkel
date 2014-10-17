@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="style.css">
+		<script type="text/javascript"
+			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACyKO5dH-2eU_QZj5CTPv57CqvstqBXmE">
+		</script>
+		<script type="text/javascript">
+			var xhr = new XMLHttpRequest();
+			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhr.open("POST", "http://chickenofthesea.herokuapp.com/sendLocation", true);
+			xhr.onreadystatechange = initializeMap;
+			
+			xhr.send("login=MichaelCorner&lat=42.3&lng=-71.1");
+			console.log(xhr.responseText);
+
+			
+
+			function initializeMap() {
+				if (xhr.readyState === 4) {
+					if (xhr.status === 200) {
+
+						var mapOptions = {
+							center: { lat: 42.3, lng: -71.1},
+							zoom: 11
+						};
+						var map = new google.maps.Map(document.getElementById('map-canvas'),
+								mapOptions);
+
+						// addMarkers(map);
+
+					} else {
+							console.error("GOT ERROR " + xhr.statusText);
+					}
+				}
+			};
+
+		
+
+		</script>
+	</head>
+	<body>
+<div id="map-canvas"></div>
+	</body>
+</html>
