@@ -12,10 +12,15 @@
 			xhr.open("POST", "http://chickenofthesea.herokuapp.com/sendLocation", true);
 			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 			
+			xhr.onreadystatechange = function(){
+				if (xhr.readyState === 4) {
+					if (xhr.status === 200) {
+						console.log("response is : " + xhr.responseText);			
+					}
+				}
+			}
 			
 			xhr.send("login=MichaelCorner&lat=42.3&lng=-71.1");
-			console.log(xhr.responseText);
-
 			
 
 			function initializeMap() {
