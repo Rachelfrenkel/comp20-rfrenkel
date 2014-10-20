@@ -15,12 +15,24 @@
 			xhr.onreadystatechange = function(){
 				if (xhr.readyState === 4) {
 					if (xhr.status === 200) {
-						console.log("response is : " + xhr.responseText);			
+						console.log("response is : " + xhr.responseText);
+						var coords = getCoords();
+						console.log(coords);
+						console.log("lat is : " + coords[lat]);			
 					}
 				}
 			}
 			
 			xhr.send("login=MichaelCorner&lat=42.3&lng=-71.1");
+
+			function getCoords() {
+				if (navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(function(e) {
+						return {lat: position.coords.latitude,
+								lng: position.coords.longitude};
+					})
+				}
+			}
 			
 
 			function initializeMap() {
