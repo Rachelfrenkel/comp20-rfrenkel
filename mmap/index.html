@@ -27,7 +27,7 @@
 
 			function getCoords() {
 				if (navigator.geolocation) {
-					navigator.geolocation.getCurrentPosition(function(e) {
+					navigator.geolocation.getCurrentPosition(function(position) {
 						var coords = {lat: position.coords.latitude,
 									  lng: position.coords.longitude};
 						console.log("lat is " + position.coords.latitude);
