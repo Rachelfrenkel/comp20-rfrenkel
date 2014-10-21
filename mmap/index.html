@@ -6,36 +6,120 @@
 			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACyKO5dH-2eU_QZj5CTPv57CqvstqBXmE">
 		</script>
 		<script type="text/javascript">
+
+			var usr = "MichaelCorner";
+			var myLat = 0;
+			var myLng = 0;
 			var xhr = new XMLHttpRequest();
-			xhr.open("POST", "http://chickenofthesea.herokuapp.com/sendLocation", true);
-			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			xhr.onload = initializeMap;
+			var me = new google.maps.LatLng(myLat, myLng);
+			var map;
+			var marker;
+			var places;
+			var infowindow = new google.maps.InfoWindow();
+			var myOptions = {
+								zoom: 13, // The larger the zoom number, the bigger the zoom
+								center: me,
+							};
 			
-			xhr.send("login=MichaelCorner&lat=" + '42.3' + "&lng=" + '-71.1');
-			console.log(xhr.responseText);
+			window.onload = initData;
 
+			function initData() {
+				map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
+				getMyCoords();
+				mapAllMarkers();	
+			}
+
+			function mapAllMakers() {
+
+				xhr.open("POST", "http://chickenofthesea.herokuapp.com/sendLocation", true);
+				xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+				xhr.onreadystatechange = function(){
+					getMyCoords();
+					console.log("got coords" + myLng);
+					if (xhr.readyState === 4) {
+						if (xhr.status === 200) {
+							console.log("response is : " + xhr.responseText);
+							//mapStudents();
+							//mapChars();
+						}
+					}
+				}
+				xhr.send("login=" + usr + "&lat=" + myLat + "&lng=" + myLng);
+			}
+
+			function getMyCoords() {
+				if (navigator.geolocation) {
+					navigator.geolocation.getCurrentPosition(function(position) {
+						myLat = position.coords.latitude;
+						myLng = position.coords.longitude;
+						initializeMap();
+					})
+				} else {
+					alert("Geolocation is not supported by your web browser");
+				}
+			}
 			
-
 			function initializeMap() {
-				cosole.log("IN INITIALIZE MAP");
 
-						var mapOptions = {
-							center: { lat: 42.3, lng: -71.1},
-							zoom: 11
-						};
-						var map = new google.maps.Map(document.getElementById('map-canvas'),
-								mapOptions);
+				me = new google.maps.LatLng(myLat, myLng);
+				
+				map.panTo(me);
 
-						// addMarkers(map);
+				var mapOptions = {
+					center: { lat: myLat, lng: myLng},
+					zoom: 13
+				};
 
+				addMe(map);
+
+				// addMarkers(map);
 
 			};
+
+			function addMe(map) {
+				me = new google.maps.LatLng(myLat, myLng);
+				var myIcon = 'images/' + usr + '.png';
+				var mapIcon = new google.maps.MarkerImage(myIcon, null, null, null, 
+														  new google.maps.Size(30, 50));
+				marker = new google.maps.Marker({
+					position: me,
+					icon: mapIcon,
+					map: map,
+					title: usr
+				});
+
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.setContent(marker.title);
+					infowindow.open(map, marker);
+				});
+			}
+
+      		function getDistance(lat1, lon1, lat2, lon2) {
+				Number.prototype.toRad = function() {
+				   return this * Math.PI / 180;
+				}
+
+				var R = 6371; // km 
+
+				var x1 = lat2-lat1;
+				var dLat = x1.toRad();  
+				var x2 = lon2-lon1;
+				var dLon = x2.toRad();  
+				var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+				                Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+				                Math.sin(dLon/2) * Math.sin(dLon/2);  
+				var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+				var d = R * c; 
+
+				return d;
+      		}
 
 		
 
 		</script>
 	</head>
 	<body>
-<div id="map-canvas"></div>
+		<div id="map-canvas"></div>
 	</body>
 </html>
