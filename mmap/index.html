@@ -29,7 +29,7 @@
 				mapAllMarkers();	
 			}
 
-			function mapAllMakers() {
+			function mapAllMarkers() {
 
 				xhr.open("POST", "http://chickenofthesea.herokuapp.com/sendLocation", true);
 				xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -40,8 +40,12 @@
 					if (xhr.readyState === 4) {
 						if (xhr.status === 200) {
 							console.log("response is : " + xhr.responseText);
-							//mapStudents();
-							//mapChars();
+							var characters = xhr.responseText['characters'];
+							var students   = xhr.responseText['students'];
+							console.log("characters: " + characters);
+							// mapCharacters(characters);
+							// mapStudents(students);
+							
 						}
 					}
 				}
@@ -93,6 +97,39 @@
 					infowindow.setContent(marker.title);
 					infowindow.open(map, marker);
 				});
+			}
+
+			function mapCharacters(characters) {
+				for (var i = 0; i < characters.length; i++) {
+					var charName = characters[i]['name'];
+					var charLat = characters[i]['loc']['latitude'];
+					var charLng = characters[i]['loc']['longitude'];
+					var charNote = characters[i]['loc']['note'];
+					var charPos = new google.maps.LatLng(charLat, charLng);
+					var charinfowindow = new google.maps.InfoWindow({
+					  content: contentString
+					});
+
+					var charMarker = new google.maps.Marker({
+						position: charPos,
+						icon: charName + '.png',
+						map: map,
+					})
+
+					var charText = '<h5>Name: ' + charName
+								   + 'Latitude: ' + charLat 
+								   + 'Longitude: ' + charLng
+								   + 'Note: ' + charNote + '</h5>'
+
+					google.maps.event.addListener(charMarker, 'click', function() {
+						charinfowindow.setContent(charText);
+						charinfowindow.open(map, charMarker);
+					});
+				}
+			}
+
+			function mapStudents(students) {
+
 			}
 
       		function getDistance(lat1, lon1, lat2, lon2) {
