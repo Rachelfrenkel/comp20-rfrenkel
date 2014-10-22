@@ -15,6 +15,7 @@
 			var map;
 			var marker;
 			var places;
+			var charDistances = [];
 			var infowindow = new google.maps.InfoWindow();
 			var myOptions = {
 								zoom: 13, // The larger the zoom number, the bigger the zoom
@@ -35,16 +36,14 @@
 				xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
 				xhr.onreadystatechange = function(){
-					getMyCoords();
-					console.log("got coords" + myLng);
 					if (xhr.readyState === 4) {
 						if (xhr.status === 200) {
 							console.log("response is : " + xhr.responseText);
-							var characters = xhr.responseText['characters'];
-							var students   = xhr.responseText['students'];
-							console.log("characters: " + characters);
-							// mapCharacters(characters);
-							// mapStudents(students);
+							var characters = JSON.parse(xhr.responseText)['characters'];
+							var students   = JSON.parse(xhr.responseText)['students'];
+							console.log("characters: " + JSON.stringify(characters));
+							mapCharacters(characters);
+							mapStudents(students);
 							
 						}
 					}
@@ -57,32 +56,19 @@
 					navigator.geolocation.getCurrentPosition(function(position) {
 						myLat = position.coords.latitude;
 						myLng = position.coords.longitude;
-						initializeMap();
+						addMe(map);
 					})
 				} else {
 					alert("Geolocation is not supported by your web browser");
 				}
 			}
 			
-			function initializeMap() {
-
-				me = new google.maps.LatLng(myLat, myLng);
-				
-				map.panTo(me);
-
-				var mapOptions = {
-					center: { lat: myLat, lng: myLng},
-					zoom: 13
-				};
-
-				addMe(map);
-
-				// addMarkers(map);
-
-			};
 
 			function addMe(map) {
 				me = new google.maps.LatLng(myLat, myLng);
+
+				map.panTo(me);
+
 				var myIcon = 'images/' + usr + '.png';
 				var mapIcon = new google.maps.MarkerImage(myIcon, null, null, null, 
 														  new google.maps.Size(30, 50));
@@ -106,30 +92,93 @@
 					var charLng = characters[i]['loc']['longitude'];
 					var charNote = characters[i]['loc']['note'];
 					var charPos = new google.maps.LatLng(charLat, charLng);
-					var charinfowindow = new google.maps.InfoWindow({
-					  content: contentString
-					});
 
 					var charMarker = new google.maps.Marker({
 						position: charPos,
-						icon: charName + '.png',
+						icon: 'images/' + charName + '.png',
 						map: map,
 					})
 
-					var charText = '<h5>Name: ' + charName
-								   + 'Latitude: ' + charLat 
-								   + 'Longitude: ' + charLng
+					var charText = '<h5>Name: ' + charName + '</br>'
+								   + 'Latitude: ' + charLat + '</br>'
+								   + 'Longitude: ' + charLng + '</br>'
 								   + 'Note: ' + charNote + '</h5>'
 
-					google.maps.event.addListener(charMarker, 'click', function() {
-						charinfowindow.setContent(charText);
-						charinfowindow.open(map, charMarker);
+					var charinfowindow = new google.maps.InfoWindow({
+					  content: charText
 					});
+
+					google.maps.event.addListener(charMarker, 'click', (function(charMarker, charText) {
+							return function() {
+								charinfowindow.setContent(charText);
+								charinfowindow.open(map, charMarker);
+							}
+						})(charMarker, charText));
+
+					addPolylines(charLat, charLng);
+					addDistance(charName, charLat, charLng);
+
 				}
+				console.log("got distances: " + JSON.stringify(charDistances));
 			}
 
 			function mapStudents(students) {
+				for (var i = 0; i < students.length; i++) {
+					var studentName = students[i]['login'];
+					var studentLat = students[i]['lat'];
+					var studentLng = students[i]['lng'];
+					var timestamp = students[i]['created_at'];
+					var studentPos = new google.maps.LatLng(studentLat, studentLng);
 
+					var studentMarker = new google.maps.Marker({
+						position: studentPos,
+						map: map,
+					})
+
+					var studentText = '<h5>Login: ' + studentName + '</br>'
+								   + 'Latitude: ' + studentLat + '</br>'
+								   + 'Longitude: ' + studentLng + '</br>'
+								   + 'Timestamp: ' + timestamp + '</h5>';
+
+
+					var studentinfowindow = new google.maps.InfoWindow({
+					  content: studentText
+					});
+
+					google.maps.event.addListener(studentMarker, 'click', (function(studentMarker, studentText) {
+							return function() {
+								console.log("got marker: " + studentMarker);
+								console.log("text is " + studentText);
+								studentinfowindow.setContent(studentText);
+								studentinfowindow.open(map, studentMarker);
+							}
+					})(studentMarker, studentText));
+
+				}
+
+			}
+
+			function addPolylines(charLat, charLng) {
+
+				var coordinates = [
+					new google.maps.LatLng(charLat, charLng), 
+					new google.maps.LatLng(myLat, myLng)
+				];
+
+				var polyline = new google.maps.Polyline({
+					path: coordinates,
+					geodesic: true,
+					strokeColor: '#FF0000',
+					strokeOpacity: 1.0,
+					strokeWeight: 2
+				});
+
+				polyline.setMap(map);
+			}
+
+			function addDistance(character, charLat, charLng) {
+				var dist = getDistance(charLat, charLng, myLat, myLng);
+				charDistances.push({'char': character, 'distance': dist});
 			}
 
       		function getDistance(lat1, lon1, lat2, lon2) {
@@ -158,5 +207,6 @@
 	</head>
 	<body>
 		<div id="map-canvas"></div>
+		<div id="distanceBox"></div>
 	</body>
 </html>
