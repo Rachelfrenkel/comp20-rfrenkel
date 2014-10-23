@@ -119,7 +119,7 @@
 					addDistance(charName, charLat, charLng);
 
 				}
-				console.log("got distances: " + JSON.stringify(charDistances));
+				populateDistanceBox();
 			}
 
 			function mapStudents(students) {
@@ -201,12 +201,32 @@
 				return d;
       		}
 
+      		function populateDistanceBox() {
+      			// sort distances so that they will print in ascending order
+      			charDistances.sort(function(a, b) {
+      				console.log('a: ' + a['distance'] + ", b: " + b['distance']);
+      				if (a['distance'] < b['distance'])
+      					return -1;
+      				else
+      					return 1;
+      			});
+
+      			for (var i = 0; i < charDistances.length; i++) {
+      				var text = '<h4 class="distanceText"><span class="charName">' 
+      							+ charDistances[i]['char'] + '</span> is ' 
+      							+ charDistances[i]['distance'] + ' miles from your location.</h4>';
+      				document.getElementById('distanceBox').innerHTML += text;
+      			}
+      		}
+
 		
 
 		</script>
 	</head>
 	<body>
 		<div id="map-canvas"></div>
-		<div id="distanceBox"></div>
+		<div id="distanceBox">
+			<h3>Distances Between You and the Marauding Characters:</h3><hr>
+		</div>
 	</body>
 </html>
