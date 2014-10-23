@@ -10,23 +10,20 @@
 			var myLat = 0;
 			var myLng = 0;
 			var xhr = new XMLHttpRequest();
-			var me = new google.maps.LatLng(myLat, myLng);
+			var me;
 			var map;
 			var marker;
 			var places;
 			var charDistances = [];
+			var myOptions;
 			var infowindow = new google.maps.InfoWindow();
-			var myOptions = {
-								zoom: 13, // The larger the zoom number, the bigger the zoom
-								center: me,
-							};
-			
+
 			window.onload = initData;
 
 			function initData() {
-				map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
 				getMyCoords();
-				mapAllMarkers();	
+
+				
 			}
 
 			function mapAllMarkers() {
@@ -37,10 +34,8 @@
 				xhr.onreadystatechange = function(){
 					if (xhr.readyState === 4) {
 						if (xhr.status === 200) {
-							console.log("response is : " + xhr.responseText);
 							var characters = JSON.parse(xhr.responseText)['characters'];
 							var students   = JSON.parse(xhr.responseText)['students'];
-							console.log("characters: " + JSON.stringify(characters));
 							mapCharacters(characters);
 							mapStudents(students);
 							
@@ -55,7 +50,15 @@
 					navigator.geolocation.getCurrentPosition(function(position) {
 						myLat = position.coords.latitude;
 						myLng = position.coords.longitude;
+						me = new google.maps.LatLng(myLat, myLng);
+						myOptions = {
+								zoom: 13,
+								center: me,
+							};
+
+						map = new google.maps.Map(document.getElementById("map-canvas"), myOptions);
 						addMe(map);
+						mapAllMarkers();	
 					})
 				} else {
 					alert("Geolocation is not supported by your web browser");
@@ -64,7 +67,6 @@
 			
 
 			function addMe(map) {
-				me = new google.maps.LatLng(myLat, myLng);
 
 				map.panTo(me);
 
@@ -82,6 +84,7 @@
 					infowindow.setContent(marker.title);
 					infowindow.open(map, marker);
 				});
+
 			}
 
 			function mapCharacters(characters) {
@@ -146,8 +149,6 @@
 
 					google.maps.event.addListener(studentMarker, 'click', (function(studentMarker, studentText) {
 							return function() {
-								console.log("got marker: " + studentMarker);
-								console.log("text is " + studentText);
 								studentinfowindow.setContent(studentText);
 								studentinfowindow.open(map, studentMarker);
 							}
@@ -177,7 +178,9 @@
 
 			function addDistance(character, charLat, charLng) {
 				var dist = getDistance(charLat, charLng, myLat, myLng);
-				charDistances.push({'char': character, 'distance': dist});
+				
+				charDistances.push({'char': character, 'distance': dist, 
+									'lat': charLat, 'lng': charLng});
 			}
 
       		function getDistance(lat1, lon1, lat2, lon2) {
@@ -201,26 +204,36 @@
       		}
 
       		function populateDistanceBox() {
-      			// sort distances so that they will print in ascending order
-      			charDistances.sort(function(a, b) {
-      				console.log('a: ' + a['distance'] + ", b: " + b['distance']);
-      				if (a['distance'] < b['distance'])
-      					return -1;
-      				else
-      					return 1;
-      			});
+				// sort distances so that they will print in ascending order
+      			sortCharDistances();
 
       			for (var i = 0; i < charDistances.length; i++) {
-      				var text = '<h4 class="distanceText"><span class="charName">' 
+
+      				var text = '<h4 class="distanceText"><button type="button" class="charName" onclick="panToChar(' + charDistances[i]['lat'] + ', ' 
+      										 + charDistances[i]['lng'] + ')">' 
       							+ charDistances[i]['char'] 
-      							+ '</span> is <span class="distanceNum">' 
+      							+ '</button> is <span class="distanceNum">' 
       							+ charDistances[i]['distance'] 
       							+ '</span> miles from your location.</h4>';
       				document.getElementById('distanceBox').innerHTML += text;
       			}
       		}
 
-		
+      		function sortCharDistances() {
+      			
+      			charDistances.sort(function(a, b) {
+      				if (a['distance'] < b['distance'])
+      					return -1;
+      				else
+      					return 1;
+      			});
+      		}
+
+			function panToChar(lat, lng) {
+				var coordinates = new google.maps.LatLng(lat, lng);
+				console.log("coords: " + coordinates);
+				map.panTo(coordinates);
+			}
 
 		</script>
 	</head>
@@ -228,6 +241,7 @@
 		<div id="map-canvas"></div>
 		<div id="distanceBox">
 			<h3>Distances Between You and the Marauding Characters:</h3><hr>
+			<button id="myLoc" type="button" onclick="panToChar(myLat, myLng)">My Location</button>
 		</div>
 	</body>
 </html>
