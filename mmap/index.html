@@ -2,8 +2,7 @@
 <html>
 	<head>
 		<link rel="stylesheet" type="text/css" href="style.css">
-		<script type="text/javascript"
-			src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACyKO5dH-2eU_QZj5CTPv57CqvstqBXmE">
+		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACyKO5dH-2eU_QZj5CTPv57CqvstqBXmE">
 		</script>
 		<script type="text/javascript">
 
@@ -213,8 +212,10 @@
 
       			for (var i = 0; i < charDistances.length; i++) {
       				var text = '<h4 class="distanceText"><span class="charName">' 
-      							+ charDistances[i]['char'] + '</span> is ' 
-      							+ charDistances[i]['distance'] + ' miles from your location.</h4>';
+      							+ charDistances[i]['char'] 
+      							+ '</span> is <span class="distanceNum">' 
+      							+ charDistances[i]['distance'] 
+      							+ '</span> miles from your location.</h4>';
       				document.getElementById('distanceBox').innerHTML += text;
       			}
       		}
