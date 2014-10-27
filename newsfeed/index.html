@@ -8,11 +8,14 @@
 	<script>
 	var newsUpdates = [];
 	$(document).ready(function(){
+
 		$("#msg").keyup(function(e) {
-			console.log("analyzing keypress");
 			if (e.keyCode != 13)
 				return;
-			console.log("you pressed enter");
+			var inputText = $(this).val();
+			$(this).val('');
+			newsUpdates.unshift(inputText);
+			$("#news").append("<br>" + " - " + inputText);
 		});
 	});
 	</script>
