@@ -5,25 +5,44 @@
 <head>
 	<title>My News Feed</title>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-	<script>
-	var newsUpdates = [];
+	<script>	
+
 	$(document).ready(function(){
+
+		var retrievedData = localStorage.getItem("newsItems");
+		var newsUpdates = JSON.parse(retrievedData);
+		if (!newsUpdates)
+			newsUpdates = [];
+		else {
+			for (var i = 0; i < newsUpdates.length; i++) {
+				$("#news").append(newsUpdates[i]);
+			}
+		}
 
 		$("#msg").keyup(function(e) {
 			if (e.keyCode != 13)
 				return;
 			var inputText = $(this).val();
 			$(this).val('');
-			newsUpdates.unshift(inputText);
-			$("#news").append("<br>" + " - " + inputText);
+			var timestamp = new Date();
+			var newsText = timestamp + " - " + inputText + "</br>";
+			$("#news").prepend(newsText);
+
+			storeInput(newsText, newsUpdates);
 		});
+
 	});
+
+	function storeInput(text, newsUpdates) {
+		newsUpdates.unshift(text);
+		localStorage.setItem("newsItems", JSON.stringify(newsUpdates));
+	}
 	</script>
 </head>
 
 <body>
 	<h1>My News Feed</h1>
 	<h3>My news update: <input type="text" id="msg" name="msg" size="30" /></h3>
-	<div id="news">News...</div>
+	<div id="news"></div>
 </body>
 </html>
