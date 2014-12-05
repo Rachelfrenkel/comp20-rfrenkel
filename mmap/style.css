@@ -3,3 +3,27 @@ html, body, #map-canvas {
 	margin: 0; 
 	padding: 0;
 }
+<<<<<<< HEAD
+=======
+
+#distanceBox {
+	width: 15%;
+	height: 90%;
+	position: absolute;
+	top: 10%;
+	right: 2%;
+	background: rgba(225, 225, 225, .8);
+
+}
+
+#distanceBox .charName, #distanceBox .distanceNum {
+	font-weight: bold;
+	text-transform: capitalize; 
+	color: blue;
+	font-style: italic;
+}
+
+#distanceBox .distanceNum {
+	color: #70B8FF;
+}
+>>>>>>> master

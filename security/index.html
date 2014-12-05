@@ -1,0 +1,369 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<style>
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-family: "Helvetica Neue", Helvetica, "Hiragino Sans GB", Arial, sans-serif;
+    font-size: 13px;
+    line-height: 18px;
+    color: #737373;
+    background-color: white;
+    margin: 10px 13px 10px 13px;
+}
+table {
+	margin: 10px 0 15px 0;
+	border-collapse: collapse;
+}
+td,th {	
+	border: 1px solid #ddd;
+	padding: 3px 10px;
+}
+th {
+	padding: 5px 10px;	
+}
+
+a {
+    color: #0069d6;
+}
+a:hover {
+    color: #0050a3;
+    text-decoration: none;
+}
+a img {
+    border: none;
+}
+p {
+    margin-bottom: 9px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #404040;
+    line-height: 36px;
+}
+h1 {
+    margin-bottom: 18px;
+    font-size: 30px;
+
+}
+h2 {
+    color:  #8686DB;
+    font-size: 24px;
+}
+h3 {
+    font-size: 18px;
+    color:  #5252CC;
+}
+h4 {
+    font-size: 16px;
+    color: #800000;
+}
+h5 {
+    font-size: 14px;
+}
+h6 {
+    font-size: 13px;
+}
+hr {
+    margin: 0 0 19px;
+    border: 0;
+    border-bottom: 1px solid #ccc;
+}
+blockquote {
+    padding: 13px 13px 21px 15px;
+    margin-bottom: 18px;
+    font-family:georgia,serif;
+    font-style: italic;
+}
+blockquote:before {
+    content:"\201C";
+    font-size:40px;
+    margin-left:-10px;
+    font-family:georgia,serif;
+    color:#eee;
+}
+blockquote p {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 18px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+code, pre {
+    font-family: Monaco, Andale Mono, Courier New, monospace;
+}
+code {
+    background-color: #fee9cc;
+    color: rgba(0, 0, 0, 0.75);
+    padding: 1px 3px;
+    font-size: 12px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+pre {
+    display: block;
+    padding: 14px;
+    margin: 0 0 18px;
+    line-height: 16px;
+    font-size: 11px;
+    border: 1px solid #d9d9d9;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+pre code {
+    background-color: #fff;
+    color:#737373;
+    font-size: 11px;
+    padding: 0;
+}
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+* {
+	-webkit-print-color-adjust: exact;
+}
+@media screen and (min-width: 914px) {
+    body {
+        width: 854px;
+        margin:10px auto;
+    }
+}
+@media print {
+	body,code,pre code,h1,h2,h3,h4,h5,h6 {
+		color: black;
+	}
+	table, pre {
+		page-break-inside: avoid;
+	}
+}
+#manual-security {
+    max-height: 300px;
+}
+#police-icon {
+    max-height: 100px;
+}
+</style>
+<title>Assignment 4: Security Assessment of Client-Side and Server-Side ![security police](screenshots/securitypolice.jpeg)</title>
+
+</head>
+<body>
+<h2>Assignment 4: Security Assessment of Client-Side and Server-Side <img id="police-icon" src="screenshots/securitypolice.jpeg" alt="security police" /></h2>
+
+<h5>Assessed by Rachel Frenkel</h5>
+
+<hr />
+
+<h3>Introduction</h3>
+
+<hr />
+
+<p>"Where in the World" is an application that displays the login times and locations of users. It allows a user to provide this information, and to see all  information of a single user or of all users. It also provides JSON of the MBTA live train times, through use of their API.</p>
+
+<p>This is an assessment of the security of Charles Colley's implementation of the application. Four vulnerabilities were found and are described below, but that by no means proves that no other vulnerabilities exist. If anything, these examples below show just how ubiquitous security flaws are.</p>
+
+<h3>Methodology</h3>
+
+<hr />
+
+<p>Testing was mainly run blackbox. Curl was used for POST requests to insert malicious input. No other outside tools were used to find vulnerabilities. After blackbox testing, I read through the code to see how data was stored and if there were other vulnerabilities that I could dig into more.</p>
+
+<h3>Abstract of Findings</h3>
+
+<hr />
+
+<p>Most of the below vulnerabilities are cases of unchecked bad input from clients. An attacker can put in bad login and location information, which allows them to display invalid entries on the site, or to change the type of information the entries are meant to display. An attacker can also take advantage of the site to show the information of all of the users.</p>
+
+<p><em>These types of attacks display incorrect, invalid, or meant-to-be-inaccessible information on the website.</em></p>
+
+<h3>Issues Found</h3>
+
+<hr />
+
+<h4>Issue: Injection of Invalid Lat/Lng Data</h4>
+
+<h5>Location: "/sendLocation" POST</h5>
+
+<h5>Severity: Low</h5>
+
+<p>This is of low severity because, while it does not change the basic formatting of the user entries and website formatting, it does allow for invalid entries of incomplete latitude and longitute. This allows users to login without providing a location, and these user entries will still be displayed on the site home page.</p>
+
+<h5>Description:</h5>
+
+<p>In the POST request, the query lat and lng variables are extracted using the parseFloat() function. However, this function returns NaN (not a number) if the variable is not a float. The application then inserts the result of parseFloat, no matter what the return result, into a toInsert variable and stores this in the database with</p>
+
+<pre><code>var id = collection.insert(toInsert, 
+</code></pre>
+
+<p>This allows for a lot of invalid entries, which may include 'NaN' for the lat and lng values for a user.</p>
+
+<h5>Proof of Vulnerability:</h5>
+
+<p><img src="screenshots/invalidquery.png" alt="Invalid Location Query" />
+As you can see by this picture, I posted data to a user and did not pass in floats for the lat and lng parameters. This user was still inserted into the database, and displayed on the home page of the site.</p>
+
+<h5>Resolution:</h5>
+
+<p>This is a relatively easy issue to fix. The application can take advantage of the node.js validator library, which includes the function isFloat(). This function can be applied to the lat and lng variables after they have gone through parseFloat(), to ensure that what is being inserted is indeed a float, and not NaN.
+This solution could look as follows:</p>
+
+<pre><code>var lng = parseFloat(request.body.lng);
+var lat = parseFloat(request.body.lat); 
+
+//check if all inputs are there, and that lat and lng are floats
+if ( !login || !lat || !lng || !isFloat(lat) || !isFloat(lng))
+{
+    reponse.send(500);
+} else { ...
+</code></pre>
+
+<h4>Issue: Cross-Site-Scripting</h4>
+
+<h5>Location: "/sendLocation" POST, affecting GET request user displays</h5>
+
+<h5>Severity: High</h5>
+
+<p>This is a highly severe issue because it allows an attacker to input malicious data into the site. This can manipulate the site into functioning in a way that it is not supposed to, doing things such as page redirects or displaying of images instead of user data. Most dangerously, if an infinite loop is put into script tags, this will suspend the site, rendering it unusable.</p>
+
+<h5>Description:</h5>
+
+<p>In the POST request, the login query is inserted into the database without first being sanitized. Unlike lat and lng, it does not go through the parseFloat() function, so it is not even translated into something more harmless like NaN. This allows an attacker to insert malicious HTML and Javascript as the login. As a result, when the home page is accessed and all user infos are displayed, this malicious HTML or Javascript is run, which can have terrible consequences for the site.</p>
+
+<h5>Proof of Vulnerability:</h5>
+
+<p>To show this issue, I used three different methods. These images are what was displayed when I went to the home page of the site.</p>
+
+<ol>
+<li><p>I inserted an iframe of the site "theoatmeal.com" for the login:
+<img src="screenshots/iframe.png" alt="iframe" />
+This homepage display of the users was completely hijacked by this iframe tag. No other users were displayed, holding up the rest of the page information, and a frame of the malicious irrelevant site was displayed instead as the login.</p></li>
+<li><p>I inserted a javascript command to redirect to "funnyordie.com"
+<img src="screenshots/redirect.png" alt="redirect" />
+This made it so that when the homepage is accessed and the application attempts to display the login containing the redirect command, the command is executed and the homepage now displays the new website. This is highly dangerous -- it can completely wipe out a site and not allow any of it to display, only to display other unrelated sites. It can confuse clients, and turn them away from the site (literally and figuratively).</p></li>
+<li><p>I inserted a javascript command to execute an infinite loop
+<img src="screenshots/infiniteloop.png" alt="infinite loop" />
+This made the server completely unresponsive. I tried loading the homepage, which had this infinite loop, and was forced to kill the page. This attack managed to bring down the entire site.</p></li>
+</ol>
+
+
+<h5>Resolution:</h5>
+
+<p>To resolve this issue, the login parameter must be sanitized before it is added to the database. This can be done in a variety of ways. One module that makes this easier is the node.js 'validator' module. In its newest version, you can use its escape() method to replace &lt;, >, &amp;, ', and " with HTML entities. You can also escape the user input by using validator's whitelist() function to remove characters that do not appear in the whitelist.</p>
+
+<h4>Issue: Injection of Falsified Data</h4>
+
+<p><em>This is also part of the cross-site-scripting issue above, the issue has just been broken up for clarity and simplicity.</em></p>
+
+<h5>Location: "/sendLocation" POST affecting GET request</h5>
+
+<h5>Severity: Medium and/or High</h5>
+
+<p>This is of medium severity because it allows the site to continue running its processes as usual, but with faulty user information. If the goal of the site is to display users and their locations, then this problem is ruining this goal and providing faulty information that will make users unable to trust the site.</p>
+
+<h5>Description:</h5>
+
+<p>The query variables for a login, lat, and lng are not checked for accuracy when taken from the POST request. The unchecked lat and lng allow a user who, for example, is really logging in from Tufts in Medford, to put in the lat and lng for Antarctica. This is not checked against the user's actual geolocation, so the user will falsely be able to login from anywhere in the world.</p>
+
+<p>The unchecked login will allow a user to use any login username they like -- a non-existing user, or, more dangerously, a username of a different user. This last case is highly severe, because it allows any attacker to manipulate the logins of any user, causing a high flow of false information and distrust on the site.</p>
+
+<h5>Proof of Vulnerability</h5>
+
+<ul>
+<li><p>I logged in from Somerville, MA (my lat is 42, my lng is -71), but using the POST request I logged in from Antarctica at lat -90, lng 0.</p>
+
+<p>  <img src="screenshots/falselocation.png" alt="false location" /></p></li>
+<li><p>I logged in as a different user, and could post that this user was in any location I pleased</p>
+
+<p>  <img src="screenshots/falseuser.png" alt="false user" /></p></li>
+</ul>
+
+
+<h5>Resolution:</h5>
+
+<p>To fix the latitude and longitude accuracy, the application should use geolocation to determine the location from where the user is posting. To fix user accuracy, a user should have to log in to use this application, and then their session determines the username that a user may post with, the application does not depend on a truthful user. However, this is far above and beyond the specifications of the project, so it is a very serious security flaw that is not expected to be handled by the application.</p>
+
+<h4>Issue: Request Injection Attack</h4>
+
+<h5>Location: GET home page</h5>
+
+<h5>Severity: High</h5>
+
+<p>This is a highly severe issue because it allows a user to see the information of all users. In this particular case, because the home page displays all user info, it is arguable that this security flaw is not so severe because the information is already available, but to allow a user to make a request to show all users not equal to a username is, in general, a very serious security flaw.</p>
+
+<h5>Description:</h5>
+
+<p>An attacker may manipulate the GET request for a user by using MongoDB syntax. Instead of displaying the information belonging to a login equal to a username, by using [$ne], an attacker can display the informations of all usernames not equal to the provided login username.</p>
+
+<h5>Proof of Vulnerability:</h5>
+
+<p><img src="screenshots/showall.png" alt="show all users" />
+This displays all users not equal to the username "showsallusers". This means that any attacker can manipulate the site to display all users who have logged in.</p>
+
+<h5>Resolution:</h5>
+
+<p>To resolve this issue, the login query variable should be forced to a string.</p>
+
+<pre><code>var login = request.query.login;
+login = login.toString();
+</code></pre>
+
+<p>Now when an attacker passes "<strong>login[$ne]=showsallusers</strong>" to the query, the application no longer searches for "<strong>{ '$ne': 'showallusers' }</strong>", and instead of returning the information of all users in the system not equal to 'showsallusers', an empty array is returned instead (the default value for a user without any entries).</p>
+
+<h4>Issue: Universal Access-Control-Allow-Origin</h4>
+
+<h5>Location: All Origins</h5>
+
+<h5>Severity: Medium</h5>
+
+<p>This issue is of medium severity, because it allows any origin to make a request and receive the response of the 'whereintheworld' website. If this information is not meant to be accessed in such a way, then this is luckily easily fixed.</p>
+
+<h5>Description:</h5>
+
+<p>This implementation of 'whereintheworld' allows sharing with every origin. This means that any origin can make an XHR request to the site and get back the server's response.</p>
+
+<h5>Proof of Vulnerability:</h5>
+
+<p><img src="screenshots/origincontrol.png" alt="cross-origin" /></p>
+
+<p>This was found by looking through the actual server code. The above image is in the file 'server.js'. The asterisk represents that <em>any</em> origin should be allowed access.</p>
+
+<h5>Resolution:</h5>
+
+<p>To resolve this issue, the application should only allow sharing with the specific origins that it needs to interact with. For example, a line allowing the site to share with http://example.com would look like</p>
+
+<pre><code>response.header("Access-Control-Allow-Origin", "http://example.com");
+</code></pre>
+
+<p>This will prevent an excess of origins from being able to make requests and receive responses from 'whereintheworld'.</p>
+
+<h3>Conclusion</h3>
+
+<hr />
+
+<p>As it stands, there are a handful of serious security flaws in the 'whereintheworld' application. If the above recommendations are followed, the site will be much more prepared for attacks. Luckily, these are easy to implement.</p>
+
+<p>What is a much larger job, and thereby is harder to implement, is user accounts and sessions in order to verify user postings. This is very possible, but will take much more effort and restructuring of the application than the other issue solutions.</p>
+
+<p>All in all, it will cost about $700 to hire help to fix the above issues, create user accounts and secure functionalities, and do a complete security evaluation. After this investment, 'whereintheworld' will be incomparably safer.</p>
+
+<p><img id="manual-security" src="screenshots/gunsecurity.jpg" alt="manual security" /></p>
+</body>
+</html>
