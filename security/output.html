@@ -1,0 +1,104 @@
+<h2>Assignment 4: Security Assessment of Client-Side and Server-Side</h2>
+
+<h2>#####Assessed by Rachel Frenkel</h2>
+
+<h2>###Introduction</h2>
+
+<h2>###Methodology</h2>
+
+<h2>###Abstract of Findings</h2>
+
+<h2>###Issues Found</h2>
+
+<h4>Issue: NaN lat and lng</h4>
+
+<h5>Location: "/sendLocation" POST</h5>
+
+<h5>Severity: Low</h5>
+
+<p>This is of low severity because, while it does not change the basic formatting of the user entries and website formatting, it does allow for invalid entries of incomplete latitude and longitute. This allows users to login without allowing the application to access their location, and these user entries will be displayed on the site home page.</p>
+
+<h5>Description:</h5>
+
+<p>In the POST request, the query lat and lng variables are extracted using the parseFloat() function. However, this function returns NaN (not a number) if the variable is not a float. The application then inserts the result of parseFloat, no matter what the return result, into a toInsert variable and stores this in the database with </p>
+
+<pre><code>var id = collection.insert(toInsert,
+</code></pre>
+
+<p>This allows for a lot of invalid entries, which may include 'NaN' for the lat and lng values for a user. </p>
+
+<h5>Proof of Vulnerability:</h5>
+
+<p><img src="screenshots/invalidquery.png" alt="Invalid Location Query" title="" />
+As you can see by this picture, I posted data to a user and did not pass in floats for the lat and lng parameters. This user was still inserted into the database, and displayed on the home page of the site. </p>
+
+<h5>Resolution:</h5>
+
+<p>This is a relatively easy issue to fix. The application can take advantage of the node.js validator library, which includes the function isFloat(). This function can be applied to the lat and lng variables after they have gone through parseFloat(), to ensure that what is being inserted is indeed a float, and not NaN. 
+This solution could look as follows:</p>
+
+<pre><code>var lng = parseFloat(request.body.lng);
+var lat = parseFloat(request.body.lat); 
+
+//check if all inputs are there, and that lat and lng are floats
+if ( !login || !lat || !lng || !isFloat(lat) || !isFloat(lng))
+{
+    reponse.send(500);
+} else { ...
+</code></pre>
+
+<h4>Issue: cross-site-scripting</h4>
+
+<h5>Location: "/sendLocation" POST, affecting GET request user displays</h5>
+
+<h5>Severity: High</h5>
+
+<p>This is a highly severe issue because it allows an attacker to input malicious data into the site. This can manipulate the site into functioning in a way that it is not supposed to, doing things such as page redirects or displaying of images instead of user data.</p>
+
+<h5>Description:</h5>
+
+<p>In the POST request, the login query is inserted into the database without first being sanitized. Unlike lat and lng, it does not go through the parseFloat() function, so it is not even translated into something more harmless like NaN. This allows an attacker to insert malicious HTML and Javascript as the login. As a result, when the home page is accessed and all user infos are displayed, this malicious HTML or Javascript is run, which can have terrible consequences for the site. </p>
+
+<h5>Proof of Vulnerability:</h5>
+
+<p>To show this issue, I used two different methods. </p>
+
+<ul>
+<li><p>I inserted an iframe of the site "theoatmeal.com" for the login:
+<img src="screenshots/iframe.png" alt="iframe" title="" />
+This homepage display of the users was completely hijacked by this iframe tag. No other users were displayed, holding up the rest of the page information, and a frame of an irrelevant site was displayed instead as the login. </p></li>
+<li><p>I inserted a javascript command to redirect to "funnyordie.com"
+<img src="screenshots/redirect.png" alt="redirect" title="" />
+This made it so that when the homepage is accessed, when the application attempts to display the login with the redirect command, the command is executed and the homepage now displays the new website. This is highly dangerous -- it can completely wipe out a site and not allow any of it to display, only to display other unrelated sites. It can confuse clients, and turn them away from the site (literally and figuratively).</p>
+
+<h5>Resolution:</h5></li>
+</ul>
+
+<p>To resolve this issue, the login parameter must be sanitized before it is added to the database. This can be done in a variety of ways. One module that makes this easier is the node.js 'validator' module. In its newest version, you can use its escape() method to replace &lt;, >, &amp;, ', and " with HTML entities. You can also escape the user input by using validator's whitelist() function to remove characters that do not appear in the whitelist. </p>
+
+<hr />
+
+<ol>
+<li>login is not checked if it is a float in POST, so if you pass in non-numbers to login, such as an iframe tag, for GET requests this is redisplayed, no matter what it is.
+<ul>
+<li>I displayed an iframe</li>
+<li>I redirected to funnyordie.com</li>
+</ul></li>
+<li><strong>DONE</strong> lat and lng are checked for if they are floats in POST, but no matter what they are still stored in the database. This does not allow you to store whatever you want, but NaN (not a number) will be stored if the parameters are not floats, which allows for bad input to be stored in the database</li>
+<li>can put in anything for login, lat, and lng, so could really be logging in from Tufts University in Medford, but manipulate the query so that it says you're logging in from Antarctica. A user can also use any username for the login, allowing them to give false information for any username. </li>
+</ol>
+
+<hr />
+
+<ol>
+<li>Issue</li>
+<li>Location</li>
+<li>Severity</li>
+<li>Description</li>
+<li>Proof of Vulnerability</li>
+<li>Resolution</li>
+</ol>
+
+<hr />
+
+<h2>###Conclusion</h2>
